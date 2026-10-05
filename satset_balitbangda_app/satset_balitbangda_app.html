@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SATSET - Balitbangda</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .sidebar-active {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-left: 4px solid #ffffff;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans antialiased">
+
+    <!-- Root Container -->
+    <div id="app" class="min-h-screen flex flex-col">
+
+        <!-- Navigation Bar -->
+        <nav class="bg-blue-800 text-white shadow-lg sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-16">
+                    <div class="flex items-center space-x-3">
+                        <i class="fa-solid me-2 fa-paper-plane text-2xl text-yellow-400"></i>
+                        <span class="font-bold text-xl tracking-wider">SATSET Balitbangda</span>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button onclick="switchRole('admin')" id="btn-admin" class="px-3 py-1 bg-blue-900 rounded text-xs font-semibold hover:bg-blue-700 transition">Mode Admin</button>
+                        <button onclick="switchRole('kaban')" id="btn-kaban" class="px-3 py-1 bg-blue-700 rounded text-xs font-semibold hover:bg-blue-600 transition">Mode Kaban</button>
+                        <div class="relative flex items-center space-x-2 pl-4 border-l border-blue-700">
+                            <span id="user-display" class="text-sm font-medium">Admin User</span>
+                            <i class="fa-solid fa-circle-user text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="flex flex-1">
+            <!-- Sidebar -->
+            <aside class="w-64 bg-slate-800 text-slate-200 flex-shrink-0 hidden md:block">
+                <div class="p-4">
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Menu Utama</p>
+                    <nav class="space-y-1" id="sidebar-menu">
+                        <!-- Menu items will be rendered dynamically -->
+                    </nav>
+                </div>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="flex-1 p-6 overflow-y-auto">
+                <div class="max-w-7xl mx-auto">
+                    
+                    <!-- Top Status Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                        <div class="bg-white rounded-lg shadow p-5 border-l-4 border-blue-500">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-500 font-medium">Surat Masuk</p>
+                                    <p class="text-2xl font-bold text-gray-800" id="count-surat-masuk">128</p>
+                                </div>
+                                <div class="p-3 bg-blue-100 rounded-full text-blue-600">
+                                    <i class="fa-solid fa-inbox text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-lg shadow p-5 border-l-4 border-green-500">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-500 font-medium">Surat Keluar</p>
+                                    <p class="text-2xl font-bold text-gray-800" id="count-surat-keluar">94</p>
+                                </div>
+                                <div class="p-3 bg-green-100 rounded-full text-green-600">
+                                    <i class="fa-solid fa-paper-plane text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-lg shadow p-5 border-l-4 border-yellow-500">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-500 font-medium">Disposisi Pending</p>
+                                    <p class="text-2xl font-bold text-gray-800" id="count-disposisi">12</p>
+                                </div>
+                                <div class="p-3 bg-yellow-100 rounded-full text-yellow-600">
+                                    <i class="fa-solid fa-clock text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-lg shadow p-5 border-l-4 border-purple-500">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-500 font-medium">Laporan Kinerja</p>
+                                    <p class="text-2xl font-bold text-gray-800" id="count-laporan">45</p>
+                                </div>
+                                <div class="p-3 bg-purple-100 rounded-full text-purple-600">
+                                    <i class="fa-solid fa-file-lines text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Content Panel -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        
+                        <!-- Main Table View -->
+                        <div class="lg:col-span-2 bg-white rounded-lg shadow p-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="text-lg font-bold text-gray-800" id="panel-title">Daftar Surat Terbaru</h2>
+                                <button class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-sm font-medium flex items-center space-x-1">
+                                    <i class="fa-solid fa-plus text-xs"></i>
+                                    <span>Tambah Data</span>
+                                </button>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse text-sm">
+                                    <thead>
+                                        <tr class="border-b bg-gray-50 text-gray-600">
+                                            <th class="p-3">No. Surat</th>
+                                            <th class="p-3">Pengirim / Perihal</th>
+                                            <th class="p-3">Tanggal</th>
+                                            <th class="p-3">Status</th>
+                                            <th class="p-3 text-center">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="table-body" class="divide-y divide-gray-100">
+                                        <!-- Table Rows render standard data -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Statistics Panel -->
+                        <div class="bg-white rounded-lg shadow p-6 flex flex-col justify-between">
+                            <div>
+                                <h2 class="text-lg font-bold text-gray-800 mb-4">Statistik Arsip</h2>
+                                <div class="relative h-64">
+                                    <canvas id="archiveChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-gray-100 text-xs text-gray-500 flex justify-between items-center">
+                                <span>Status WhatsApp Bot: <span class="text-green-600 font-bold">Terhubung</span></span>
+                                <i class="fa-brands fa-whatsapp text-lg text-green-500"></i>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Application JavaScript -->
+    <script>
+        let currentRole = 'admin';
+
+        const mockData = [
+            { id: '001/BALITBANG/2026', title: 'Undangan Rapat Koordinasi Inovasi', date: '2026-10-04', status: 'Selesai', color: 'green' },
+            { id: '002/BALITBANG/2026', title: 'Laporan Triwulan Riset Daerah', date: '2026-10-05', status: 'Proses Disposisi', color: 'yellow' },
+            { id: '003/BALITBANG/2026', title: 'Permohonan Data Kelitbangan', date: '2026-10-05', status: 'Pending', color: 'red' },
+            { id: '004/BALITBANG/2026', title: 'Surat Pengantar Usulan Program', date: '2026-10-06', status: 'Selesai', color: 'green' }
+        ];
+
+        const adminMenus = [
+            { icon: 'fa-gauge', label: 'Dashboard', active: true },
+            { icon: 'fa-envelope', label: 'Surat & Arsip', active: false },
+            { icon: 'fa-file-invoice', label: 'Laporan Tenggat', active: false },
+            { icon: 'fa-users', label: 'Manajemen User', active: false },
+            { icon: 'fa-gear', label: 'Pengaturan System', active: false }
+        ];
+
+        const kabanMenus = [
+            { icon: 'fa-gauge', label: 'Dashboard Kaban', active: true },
+            { icon: 'fa-stamp', label: 'Disposisi Surat', active: false },
+            { icon: 'fa-chart-line', label: 'Laporan Kinerja', active: false },
+            { icon: 'fa-box-archive', label: 'Arsip Keputusan', active: false }
+        ];
+
+        function renderSidebar() {
+            const menuContainer = document.getElementById('sidebar-menu');
+            const menus = currentRole === 'admin' ? adminMenus : kabanMenus;
+            
+            menuContainer.innerHTML = menus.map(m => `
+                <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-md text-sm font-medium transition ${m.active ? 'sidebar-active text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white'}">
+                    <i class="fa-solid ${m.icon} w-5 text-center"></i>
+                    <span>${m.label}</span>
+                </a>
+            `).join('');
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = mockData.map(row => `
+                <tr class="hover:bg-gray-50 transition">
+                    <td class="p-3 font-medium text-gray-700">${row.id}</td>
+                    <td class="p-3 text-gray-800">${row.title}</td>
+                    <td class="p-3 text-gray-500">${row.date}</td>
+                    <td class="p-3">
+                        <span class="px-2 py-1 rounded-full text-xs font-semibold bg-${row.color}-100 text-${row.color}-800">
+                            ${row.status}
+                        </span>
+                    </td>
+                    <td class="p-3 text-center space-x-2">
+                        <button class="text-blue-600 hover:text-blue-800" title="Detail"><i class="fa-solid fa-eye"></i></button>
+                        <button class="text-green-600 hover:text-green-800" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function switchRole(role) {
+            currentRole = role;
+            document.getElementById('user-display').innerText = role === 'admin' ? 'Administrator' : 'Kepala Badan (Kaban)';
+            document.getElementById('panel-title').innerText = role === 'admin' ? 'Daftar Surat Terbaru' : 'Disposisi Memerlukan Persetujuan';
+            renderSidebar();
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('archiveChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Surat Masuk', 'Surat Keluar', 'Laporan'],
+                    datasets: [{
+                        data: [128, 94, 45],
+                        backgroundColor: ['#3B82F6', '#10B981', '#A855F7']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
+
+        // Initialize Application
+        document.addEventListener('DOMContentLoaded', () => {
+            renderSidebar();
+            renderTable();
+            initChart();
+        });
+    </script>
+</body>
+</html>
